@@ -1,59 +1,45 @@
 package com.example.myapplication;
+
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
+import androidx.fragment.app.FragmentManager;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SelectionFragment.OnLanguageSelectedListener {
 
-    Spinner spinnerLanguages;
-    Button buttonOk, buttonCancel;
-    TextView textResult;
-    String selectedLanguage = "";
+    private ResultFragment resultFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        spinnerLanguages = findViewById(R.id.spinnerLanguages);
-        buttonOk = findViewById(R.id.buttonOk);
-        buttonCancel = findViewById(R.id.buttonCancel);
-        textResult = findViewById(R.id.textResult);
+        // Додаємо обидва фрагменти
+        FragmentManager fm = getSupportFragmentManager();
 
-        String[] languages = {"", "Java", "Python", "C++", "JavaScript", "Kotlin", "Swift"};
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, languages);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerLanguages.setAdapter(adapter);
+        if (savedInstanceState == null) {
+            fm.beginTransaction()
+                    .replace(R.id.fragment_selection, new SelectionFragment())
+                    .replace(R.id.fragment_result, new ResultFragment())
+                    .commit();
+        }
 
-        spinnerLanguages.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedLanguage = languages[position];
-            }
+        // Після ініціалізації activity пробуємо знайти фрагмент результату
+        resultFragment = (ResultFragment) fm.findFragmentById(R.id.fragment_result);
+    }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                selectedLanguage = "";
-            }
-        });
+    @Override
+    public void onLanguageSelected(String language) {
+        resultFragment = (ResultFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_result);
+        if (resultFragment != null) {
+            resultFragment.setLanguage(language);
+        }
+    }
 
-        buttonOk.setOnClickListener(view -> {
-            if (selectedLanguage.isEmpty()) {
-                Toast.makeText(MainActivity.this, "Будь ласка, оберіть мову програмування!", Toast.LENGTH_SHORT).show();
-            } else {
-                textResult.setText("Вибрана мова: " + selectedLanguage);
-            }
-        });
-
-        buttonCancel.setOnClickListener(view -> {
-            spinnerLanguages.setSelection(0); // повернути вибір до порожнього
-            textResult.setText("");
-        });
+    @Override
+    public void onClearRequested() {
+        resultFragment = (ResultFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_result);
+        if (resultFragment != null) {
+            resultFragment.clearResult();
+        }
     }
 }
