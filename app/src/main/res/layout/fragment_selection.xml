@@ -37,4 +37,11 @@
             android:layout_height="wrap_content"
             android:text="Cancel" />
     </LinearLayout>
+
+    <Button
+        android:id="@+id/buttonOpen"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Відкрити"
+        android:layout_marginTop="12dp" />
 </LinearLayout>
